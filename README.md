@@ -69,11 +69,18 @@ Tasks completed:
 
 ---
 
-### Phase 2 — Structured Output Generation (Upcoming)
+### Phase 2 — Structured Output Generation (Completed)
 
-* Define JSON schemas
-* Enforce schema-constrained responses
-* Implement structured prompts
+This phase introduces schema-constrained generation to evaluate how reliably local language models can produce valid structured outputs.
+
+Key components implemented:
+
+* JSON schema definition for structured responses
+* Structured prompt templates enforcing JSON output
+* Automatic validation using **Pydantic**
+* Retry mechanism for invalid model outputs
+* Reliability benchmarking across models
+* Temperature-based evaluation to analyze stochastic behavior
 
 ---
 
@@ -178,6 +185,44 @@ Example:
 
 ---
 
+# Phase 2 — Structured Output Reliability Benchmark
+
+This phase evaluates how reliably local language models can generate **valid JSON outputs** under schema constraints.
+
+Each model was tested using:
+
+* 3 structured prompts
+* 2 temperature settings (0 and 0.7)
+* Total generations per model: **6**
+
+All responses were validated using **Pydantic schema validation**, and invalid outputs were automatically retried once.
+
+---
+
+## JSON Structured Output Success Rate
+
+| Model | Temp 0 Success | Temp 0.7 Success | Total Success | Success Rate |
+|------|------|------|------|------|
+| llama3.2:1b | 2 / 3 | 3 / 3 | 5 / 6 | 83.3% |
+| phi3 | 0 / 3 | 0 / 3 | 0 / 6 | 0% |
+| mistral | 3 / 3 | 3 / 3 | 6 / 6 | 100% |
+| llama3.1:8b | 3 / 3 | 3 / 3 | 6 / 6 | 100% |
+
+---
+
+### Key Observations
+
+- Larger models such as **mistral** and **llama3.1:8b** produced consistently valid JSON outputs.
+- Smaller models like **llama3.2:1b** occasionally violated schema constraints.
+- **phi3** struggled to follow strict JSON formatting instructions in this benchmark.
+- Temperature variation did not significantly affect structured reliability for larger models.
+
+These results highlight that **model size and instruction-following ability strongly influence structured output reliability**.
+
+---
+
+
+
 # Project Architecture
 
 ```
@@ -191,10 +236,13 @@ structured_generation/
     schema.py
     validator.py
     retry_logic.py
+    generator.py
+    prompt_template.py
 
 evaluation/
     test_prompts.json
     compare_models.py
+    structured_reliability.py
 
 results/
     benchmark_results_cpu.csv
@@ -207,34 +255,11 @@ results/
 
 * Python
 * Ollama (Local LLM Runtime)
+* Ollama Python SDK
 * Pydantic
 * Pandas
 * Matplotlib
 * JSON Schema Validation
-
----
-
-# Running the Benchmark
-
-1. Install Ollama
-
-https://ollama.com/
-
-2. Pull required models
-
-ollama pull llama3.2:1b  
-ollama pull phi3  
-ollama pull mistral  
-ollama pull llama3.1:8b  
-
-3. Run the benchmark
-
-python benchmark/benchmark_models.py
-
-4. Results will be saved in
-
-results/benchmark_results_cpu.csv  
-results/benchmark_results_gpu.csv
 
 ---
 
@@ -266,4 +291,5 @@ Divya Thakran
 # Project Status
 
 Phase 1 completed
-Phase 2 implementation in progress
+Phase 2 completed
+Phase 3 implementation in progress
