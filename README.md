@@ -4,9 +4,9 @@
 
 # Offline LLM Benchmark & Structured Generation Framework
 
-A framework for evaluating small **local language models** on structured generation tasks with schema validation and automatic retry mechanisms.
+A framework for benchmarking **local language models** on inference performance and structured generation reliability.
 
-This project explores how reliably small LLMs running locally can produce **valid structured outputs** when constrained by schemas. The system benchmarks multiple models and analyzes their performance across structured tasks.
+This project evaluates how efficiently small LLMs run locally and how reliably they produce **schema-constrained JSON outputs**. The system benchmarks multiple models across hardware configurations and structured generation tasks.
 
 ---
 
@@ -28,12 +28,13 @@ This project investigates how well local models perform when generating structur
 
 ## Project Objectives
 
-* Evaluate multiple local LLMs on structured generation tasks
-* Enforce JSON schema outputs
-* Validate model responses automatically
+* Benchmark inference performance of local LLMs
+* Measure tokens/sec, latency, and time-to-first-token
+* Compare CPU vs GPU inference performance
+* Enforce JSON schema outputs for structured generation
+* Validate model responses using Pydantic
 * Implement retry mechanisms for invalid outputs
-* Benchmark performance across models
-* Generate evaluation reports for analysis
+* Evaluate reliability of structured generation across models
 
 ---
 
@@ -84,25 +85,17 @@ Key components implemented:
 
 ---
 
-### Phase 3 — Validation & Retry Mechanism (Upcoming)
+### Phase 3 — Structured Output Reliability Evaluation (Completed)
 
-* Detect invalid model outputs
-* Validate responses using schema validation
-* Retry generation automatically
+This phase evaluates how reliably local language models generate valid JSON outputs under schema constraints.
 
----
+Tasks completed:
 
-### Phase 4 — Model Evaluation
-
-* Run structured prompts across models
-* Measure success rate of valid outputs
-
----
-
-### Phase 5 — Result Analysis
-
-* Aggregate metrics
-* Generate structured output reliability reports
+* Ran structured prompts across multiple models
+* Tested outputs under different temperature settings
+* Validated responses using Pydantic schemas
+* Implemented automatic retry for invalid outputs
+* Measured JSON output success rate across models
 
 ---
 
@@ -134,7 +127,7 @@ This phase measures the **inference performance of local LLMs**.
 
 GPU: NVIDIA RTX 4050 Laptop GPU
 VRAM: 6GB
-CUDA Version: 13.1
+CUDA Version: 12.x
 
 ---
 
@@ -191,9 +184,9 @@ This phase evaluates how reliably local language models can generate **valid JSO
 
 Each model was tested using:
 
-* 3 structured prompts
+* 30 structured prompts
 * 2 temperature settings (0 and 0.7)
-* Total generations per model: **6**
+* Total generations per model: **60**
 
 All responses were validated using **Pydantic schema validation**, and invalid outputs were automatically retried once.
 
@@ -203,10 +196,10 @@ All responses were validated using **Pydantic schema validation**, and invalid o
 
 | Model | Temp 0 Success | Temp 0.7 Success | Total Success | Success Rate |
 |------|------|------|------|------|
-| llama3.2:1b | 2 / 3 | 3 / 3 | 5 / 6 | 83.3% |
-| phi3 | 0 / 3 | 0 / 3 | 0 / 6 | 0% |
-| mistral | 3 / 3 | 3 / 3 | 6 / 6 | 100% |
-| llama3.1:8b | 3 / 3 | 3 / 3 | 6 / 6 | 100% |
+| llama3.2:1b | 25 / 30 | 23 / 30 | 48 / 60 | 80% |
+| phi3 | 0 / 30 | 0 / 30 | 0 / 60 | 0% |
+| mistral | 30 / 30 | 30 / 30 | 60 / 60 | 100% |
+| llama3.1:8b | 30 / 30 | 30 / 30 | 60 / 60 | 100% |
 
 ---
 
@@ -221,32 +214,111 @@ These results highlight that **model size and instruction-following ability stro
 
 ---
 
+# Phase 3 — Final Model Evaluation & Comparison
 
+This phase combines the results from **inference benchmarking** and **structured generation reliability tests** to evaluate the overall performance of each model.
+
+The goal is to understand the **trade-offs between speed, latency, and structured output reliability** when running language models locally.
+
+All models were evaluated across three key dimensions:
+
+* Inference throughput (tokens/sec)
+* Response latency
+* Structured JSON generation reliability
+
+---
+
+## Token Generation Throughput
+
+The following comparison shows the **average tokens generated per second** by each model.
+
+![Tokens Per Second Comparison](results/tokens_per_sec_comparison.png)
+
+### GPU Throughput Comparison
+
+![Tokens Per Second GPU](results/tokens_per_sec_comparison_gpu.png)
+
+---
+
+## Response Latency Comparison
+
+Latency measures how long a model takes to generate a complete response.
+
+![Latency Comparison](results/latency_comparison.png)
+
+### GPU Latency Comparison
+
+![Latency GPU](results/latency_comparison_gpu.png)
+
+---
+
+## Overall Model Comparison
+
+| Model | Speed | Latency | JSON Reliability | Overall Characteristics |
+|------|------|------|------|------|
+| llama3.2:1b | Very Fast | Low | Moderate | Extremely efficient small model |
+| phi3 | Fast | Low | Very Low | Fast but unreliable for strict structured outputs |
+| mistral | Moderate | Medium | Very High | Balanced performance and reliability |
+| llama3.1:8b | Slowest | High | Very High | Most reliable but computationally heavy |
+
+---
+
+## Key Insights
+
+- **Model size strongly impacts inference speed**, with smaller models producing tokens significantly faster.
+- **Latency increases with model complexity**, particularly for larger models like `llama3.1:8b`.
+- **Structured output reliability improves with larger models**, which follow instructions more consistently.
+- Small models such as **llama3.2:1b** provide excellent performance for lightweight local assistants but may occasionally violate strict JSON formatting.
+- Models like **mistral** and **llama3.1:8b** show near-perfect reliability when generating structured outputs.
+
+---
+
+## Conclusion
+
+This benchmark highlights the **trade-off between performance and reliability** when running language models locally.
+
+- Small models offer **high speed and low latency**, making them suitable for lightweight local applications.
+- Larger models provide **more consistent structured outputs**, which is critical for systems that rely on strict schema validation.
+
+These findings help guide the selection of models for **local AI assistants, structured generation pipelines, and offline LLM deployments**.
+
+---
 
 # Project Architecture
 
 ```
-local-llm-benchmark/
+offline-llm-benchmark/
 
-benchmark/
-    benchmark_models.py
-    result_analysis.py
+evaluation/
+    benchmark_phase1.py
+    structured_reliability_test.py
+    json_reliability_summary.py
+    plot_json_reliability.py
 
 structured_generation/
     schema.py
-    validator.py
     retry_logic.py
     generator.py
-    prompt_template.py
-
-evaluation/
-    test_prompts.json
-    compare_models.py
-    structured_reliability.py
 
 results/
-    benchmark_results_cpu.csv
-    benchmark_results_gpu.csv
+    benchmark_results_phase1_cpu.csv
+    benchmark_results_phase1_gpu.csv
+    benchmark_results_phase3_cpu.csv
+    benchmark_results_phase3_gpu.csv
+
+    gpu_inference_proof.png
+
+    performance_summary_phase3_cpu.csv
+    performance_summary_phase3_gpu.csv
+
+    json_reliability_phase3.csv
+    json_reliability_summary.csv
+
+    tokens_per_sec_comparison_gpu.png
+    tokens_per_sec_comparison_cpu.png
+    latency_comparison.png
+    json_reliability_comparison.png
+    json_reliability_comparison_gpu.png
 ```
 
 ---
@@ -254,12 +326,12 @@ results/
 # Planned Tech Stack
 
 * Python
-* Ollama (Local LLM Runtime)
+* Ollama (Local LLM Inference Engine)
 * Ollama Python SDK
 * Pydantic
 * Pandas
 * Matplotlib
-* JSON Schema Validation
+* Structured JSON validation using Pydantic
 
 ---
 
@@ -292,4 +364,4 @@ Divya Thakran
 
 Phase 1 completed
 Phase 2 completed
-Phase 3 implementation in progress
+Phase 3 completed
