@@ -1,0 +1,9 @@
+model,temperature,json_success_rate
+llama3.1:8b,0.0,100.0
+llama3.1:8b,0.7,100.0
+llama3.2:1b,0.0,100.0
+llama3.2:1b,0.7,100.0
+mistral,0.0,100.0
+mistral,0.7,100.0
+phi3,0.0,0.0
+phi3,0.7,0.0

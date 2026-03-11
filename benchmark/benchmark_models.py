@@ -44,7 +44,7 @@ PROMPT = [
     "Explain the concept of entropy."
 ]
 
-OUTPUT_FILE = "benchmark_results_cpu.csv"
+OUTPUT_FILE = "benchmark_results_phase3_gpu.csv"
 
 def benchmark_model(model,prompt):
     token_count = 0

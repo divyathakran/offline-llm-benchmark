@@ -1,0 +1,5 @@
+model,avg_ttft_sec,avg_tokens_per_sec,avg_latency_sec,avg_tokens_generated
+llama3.2:1b,0.169,122.12,3.892,449.2
+phi3,0.063,69.0,5.179,348.0
+mistral,0.093,36.54,8.929,319.8
+llama3.1:8b,0.307,24.63,19.722,477.6
